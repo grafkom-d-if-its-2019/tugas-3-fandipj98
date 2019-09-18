@@ -1,4 +1,10 @@
+// Attributes are values that are applied to individual vertices
+// Attributes are only available to the vertex shader
+// This could be something like each vertex having a distinct color
+// Attributes have a one to one relationship with vertices
+attribute vec4 aPosition;
+
 void main() {
-  gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+  gl_Position = aPosition;
   gl_PointSize = 10.0;
 }

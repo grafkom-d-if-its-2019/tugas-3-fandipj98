@@ -49,5 +49,5 @@ void main() {
   else if(flag == 1){
     gl_Position = matrixTranslationRight * matrixSkalasi * vec4(vPosition, 0.0, 1.0);
   }
-  //gl_PointSize = 10.0;
+
 }

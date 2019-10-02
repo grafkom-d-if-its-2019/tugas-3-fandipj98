@@ -1,10 +1,53 @@
-// Attributes are values that are applied to individual vertices
-// Attributes are only available to the vertex shader
-// This could be something like each vertex having a distinct color
-// Attributes have a one to one relationship with vertices
-attribute vec4 aPosition;
+precision mediump float;
+
+attribute vec2 vPosition;
+attribute vec3 vColor;
+
+varying vec3 fColor;
+
+uniform float theta;
+uniform float scaleX;
+uniform float scaleY;
+uniform int flag;
 
 void main() {
-  gl_Position = aPosition;
-  gl_PointSize = 10.0;
+  fColor = vColor;
+  vec2 pusatKiri = vec2(-0.5, 0.0);
+  vec2 pusatKanan = vec2(0.5, 0.0);
+
+  mat4 matrixRotate = mat4(
+    cos(theta), sin(theta), 0.0, 0.0,
+    -sin(theta), cos(theta), 0.0, 0.0,
+    0.0, 0.0, 1.0, 0.0,
+    0.0, 0.0, 0.0, 1.0
+  );
+
+  mat4 matrixSkalasi = mat4(
+    scaleX, 0.0, 0.0, 0.0,
+    0.0, scaleY, 0.0, 0.0,
+    0.0, 0.0, 1.0, 0.0,
+    0.0, 0.0, 0.0, 1.0
+  );
+  
+  mat4 matrixTranslationLeft = mat4(
+    1.0, 0.0, 0.0, 0.0,
+    0.0, 1.0, 0.0, 0.0,
+    0.0, 0.0, 1.0, 0.0,
+    pusatKiri, 0.0, 1.0
+  );
+
+  mat4 matrixTranslationRight = mat4(
+    1.0, 0.0, 0.0, 0.0,
+    0.0, 1.0, 0.0, 0.0,
+    0.0, 0.0, 1.0, 0.0,
+    pusatKanan, 0.0, 1.0
+  );
+
+  if(flag == 0){
+    gl_Position = matrixTranslationLeft * matrixRotate * vec4(vPosition, 0.0, 1.0);
+  }
+  else if(flag == 1){
+    gl_Position = matrixTranslationRight * matrixSkalasi * vec4(vPosition, 0.0, 1.0);
+  }
+  //gl_PointSize = 10.0;
 }

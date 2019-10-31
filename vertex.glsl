@@ -31,9 +31,9 @@ void main() {
   );
 
   mat4 matrixTranslation = mat4(
-    0.3, 0.0, 0.0, 0.0,
-    0.0, 0.3, 0.0, 0.0,
-    0.0, 0.0, 0.3, 0.0,
+    0.7, 0.0, 0.0, 0.0,
+    0.0, 0.7, 0.0, 0.0,
+    0.0, 0.0, 0.7, 0.0,
     pusat, 1.0
   );
 
@@ -41,7 +41,7 @@ void main() {
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(vPositionKubus, 1.0);  
   }
   else if(flag == 1){
-    gl_Position = matrixTranslation * matrixSkalasi * vec4(vPosition, 1.0);
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * matrixTranslation * matrixSkalasi * vec4(vPosition, 1.0);
   }
 
 }

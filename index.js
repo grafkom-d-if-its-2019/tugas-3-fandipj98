@@ -8,23 +8,23 @@
 
   var verticesKubus = [];
   var cubePoints = [
-    [ -0.5, -0.5,  0.5 ],
-    [ -0.5,  0.5,  0.5 ],
-    [  0.5,  0.5,  0.5 ],
-    [  0.5, -0.5,  0.5 ],
-    [ -0.5, -0.5, -0.5 ],
-    [ -0.5,  0.5, -0.5 ],
-    [  0.5,  0.5, -0.5 ],
-    [  0.5, -0.5, -0.5 ]
+    [ -0.8, -0.8,  0.8 ],
+    [ -0.8,  0.8,  0.8 ],
+    [  0.8,  0.8,  0.8 ],
+    [  0.8, -0.8,  0.8 ],
+    [ -0.8, -0.8, -0.8 ],
+    [ -0.8,  0.8, -0.8 ],
+    [  0.8,  0.8, -0.8 ],
+    [  0.8, -0.8, -0.8 ]
   ];
   var cubeColors = [
     [],
-    [0.0, 1.0, 1.0], // merah
-    [0.0, 1.0, 0.5], // hijau
-    [0.0, 1.0, 0.5], // biru
-    [0.0, 1.0, 0.5], // putih
-    [0.0, 1.0, 0.5], // oranye
-    [0.0, 1.0, 0.5], // kuning
+    [0.0, 1.0, 1.0], // biru hijau
+    [0.0, 1.0, 0.5], // hijau biru
+    [0.0, 1.0, 0.5], // hijau biru
+    [0.0, 1.0, 0.5], // hijau biru
+    [0.0, 1.0, 0.5], // hijau biru
+    [0.0, 1.0, 0.5], // hijau biru
     []
   ];
   function quadKubus(a, b, c, d) {
@@ -39,14 +39,7 @@
     }
   }
 
-  quadKubus(1, 0, 3, 2); // Depan
-  quadKubus(2, 3, 7, 6); // Kanan
-  quadKubus(6, 5, 1, 2); // Atas
-  quadKubus(5, 4, 0, 1); // Kiri
-  quadKubus(4, 5, 6, 7); // Belakang
-  quadKubus(4, 7, 3, 0); // Bawah
-
-  var vertices2 = new Float32Array([
+  var verticesHuruf = new Float32Array([
     //x,y,z           //r,g,b
     0.2, 0.3, 0.0,   0.0, 0.0, 1.0,
     0.2, 0.2, 0.0,   0.0, 1.0, 0.0,
@@ -82,6 +75,13 @@
     program = glUtils.createProgram(gl, vertexShader, fragmentShader);
     gl.useProgram(program);
     
+    quadKubus(1, 0, 3, 2); // Depan
+    quadKubus(2, 3, 7, 6); // Kanan
+    quadKubus(6, 5, 1, 2); // Atas
+    quadKubus(5, 4, 0, 1); // Kiri
+    quadKubus(4, 5, 6, 7); // Belakang
+    quadKubus(4, 7, 3, 0); // Bawah
+
     resizer();
     draw();
   
@@ -99,18 +99,18 @@
   }
 
   function animasiTranslasi(){
-    if (x_huruf >= (1.0-Math.abs(0.06*scaleX))) x_arah = -1.0;
-    else if (x_huruf <= (-1.0+Math.abs(0.06*scaleX))) x_arah = 1.0;
-    x_huruf += 0.002 * x_arah;
+    if (x_huruf >= (0.8 - Math.abs(0.2 * 0.7 * scaleX))) x_arah = -1.0;
+    else if (x_huruf <= (-0.8 + Math.abs(0.2 * 0.7 * scaleX))) x_arah = 1.0;
+    x_huruf += 0.004 * x_arah;
     gl.uniform1f(xHurufLocation, x_huruf);
     
-    if (y_huruf > (1.0-0.09)) y_arah = -1.0;
-    else if (y_huruf < (-1.0+0.09)) y_arah = 1.0;
+    if (y_huruf >= (0.8 - (0.3 * 0.7))) y_arah = -1.0;
+    else if (y_huruf <= (-0.8 + (0.3 * 0.7))) y_arah = 1.0;
     y_huruf += 0.005 * y_arah;
     gl.uniform1f(yHurufLocation, y_huruf);
     
-    if (z_huruf >= 1.0) z_arah = -1.0;
-    else if (z_huruf <= -1.0) z_arah = 1.0;
+    if (z_huruf >= 0.8) z_arah = -1.0;
+    else if (z_huruf <= -0.8) z_arah = 1.0;
     z_huruf += 0.006 * z_arah;
     gl.uniform1f(zHurufLocation, z_huruf);
   }
@@ -131,10 +131,15 @@
     );
     gl.uniformMatrix4fv(vmLoc, false, vm);
     
-    var n1 = initBuffersKubus(gl, verticesKubus);
+    var nKubus = initBuffersKubus(gl, verticesKubus);
+    if(nKubus < 0){
+      console.log('Failed to set the positions of the verticesKubus');
+      return;
+    }
+
     flag = 0;
     gl.uniform1i(flagUniformLocation, flag);
-    gl.drawArrays(gl.LINE_STRIP, 0, n1);
+    gl.drawArrays(gl.LINE_STRIP, 0, nKubus);
             
     //animasi refleksi
     if (scaleX >= 1.0) melebar = -1.0;
@@ -145,17 +150,16 @@
     //animasi translasi
     animasiTranslasi();
 
-    var n2 = initBuffers(gl,vertices2);
+    var nHuruf = initBuffers(gl,verticesHuruf);
     
-    if(n2 < 0){
-        console.log('Failed to set the positions of the vertices2');
+    if(nHuruf < 0){
+        console.log('Failed to set the positions of the verticesHuruf');
         return;
     }
 
     flag = 1;
     gl.uniform1i(flagUniformLocation, flag);
-
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, n2);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, nHuruf);
 
     requestAnimationFrame(render);
   }
@@ -181,6 +185,7 @@
     vm = glMatrix.mat4.create();
     pmLoc = gl.getUniformLocation(program, 'projectionMatrix');
     pm = glMatrix.mat4.create();
+
     camera = {x: 0.0, y: 0.0, z:0.0};
     glMatrix.mat4.perspective(pm,
       glMatrix.glMatrix.toRadian(90), // fovy dalam radian
@@ -189,7 +194,6 @@
       10.0, // far  
     );
     gl.uniformMatrix4fv(pmLoc, false, pm);
-
 
     xHurufLocation = gl.getUniformLocation(program, 'x_huruf');
     x_huruf = 0.0;
@@ -220,7 +224,7 @@
     y_arah = 1.0;
     z_arah = 1.0;
 
-    gl.clearColor(50/255, 50/255, 0/255, 1.0);
+    gl.clearColor(10/255, 50/255, 50/255, 1.0);
     gl.enable(gl.DEPTH_TEST);
     render();
 
@@ -303,7 +307,7 @@
 
     var vPositionKubus = gl.getAttribLocation(program, 'vPositionKubus');
     if (vPositionKubus < 0) {
-      console.log('Failed to get the storage location of vPosition');
+      console.log('Failed to get the storage location of vPositionKubus');
       return -1;
     }
     
@@ -344,13 +348,15 @@
     // if (event.keyCode == 173) thetaSpeed -= 0.01;       // key '-' firefox mozilla
     // else if (event.keyCode == 61) thetaSpeed += 0.01;  // key '='
     else if (event.keyCode == 48) thetaSpeed = 0;       // key '0'
-    if (event.keyCode == 88) axis[x] = !axis[x];
-    if (event.keyCode == 89) axis[y] = !axis[y];
-    if (event.keyCode == 90) axis[z] = !axis[z];
-    if (event.keyCode == 38) camera.z -= 0.1;
-    else if (event.keyCode == 40) camera.z += 0.1;
-    if (event.keyCode == 37) camera.x -= 0.1;
-    else if (event.keyCode == 39) camera.x += 0.1;
+    if (event.keyCode == 88) axis[x] = !axis[x];        // key 'x'
+    if (event.keyCode == 89) axis[y] = !axis[y];        // key 'y'
+    if (event.keyCode == 90) axis[z] = !axis[z];        // key 'z'
+    if (event.keyCode == 190) camera.z -= 0.1;          // key '/'
+    else if (event.keyCode == 191) camera.z += 0.1;     // key '.'
+    if (event.keyCode == 37) camera.x -= 0.1;           // key kiri
+    else if (event.keyCode == 39) camera.x += 0.1;      // key kanan
+    if (event.keyCode == 38) camera.y += 0.1;           // key atas 
+    else if (event.keyCode == 40) camera.y -= 0.1;      // key Bawah
   }
   document.addEventListener('keydown', onKeyDown);
   
@@ -359,7 +365,6 @@
     /**
     * Callback for when the screen is resized
     **/
-
     // Scaling for a square!
     var width = canvas.getAttribute("width"), height = canvas.getAttribute("height");
     // Fullscreen if not set
@@ -379,7 +384,6 @@
 
     // viewport!
     gl.viewport(0, 0, canvas.width, canvas.height);
-    
   }
 
   // Register window and document callbacks

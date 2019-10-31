@@ -2,10 +2,11 @@
 
   var canvas, gl, program;
   var scaleXUniformLocation, scaleX, scaleYUniformLocation, scaleY, melebar;
-  var thetaUniformLocation, theta, thetaSpeed, mmLoc, mm, vmLoc, vm, pmLoc, pm, camera, axis, x, y, z
+  var thetaUniformLocation, theta, thetaSpeed, mmLoc, mm, vmLoc, vm, pmLoc, pm, camera, axis, x, y, z;
+  var xHurufLocation, x_huruf, yHurufLocation, y_huruf, zHurufLocation, z_huruf, x_arah, y_arah, z_arah;
   var flag, flagUniformLocation;
 
-  var vertices1 = [];
+  var verticesKubus = [];
   var cubePoints = [
     [ -0.5, -0.5,  0.5 ],
     [ -0.5,  0.5,  0.5 ],
@@ -18,31 +19,32 @@
   ];
   var cubeColors = [
     [],
-    [1.0, 0.0, 0.0], // merah
-    [0.0, 1.0, 0.0], // hijau
-    [0.0, 0.0, 1.0], // biru
-    [1.0, 1.0, 1.0], // putih
-    [1.0, 0.5, 0.0], // oranye
-    [1.0, 1.0, 0.0], // kuning
+    [0.0, 1.0, 1.0], // merah
+    [0.0, 1.0, 0.5], // hijau
+    [0.0, 1.0, 0.5], // biru
+    [0.0, 1.0, 0.5], // putih
+    [0.0, 1.0, 0.5], // oranye
+    [0.0, 1.0, 0.5], // kuning
     []
   ];
-  function quad(a, b, c, d) {
+  function quadKubus(a, b, c, d) {
     var indices = [a, b, c, d, a];
     for (var i=0; i < indices.length; i++) {
       for (var j=0; j < 3; j++) {
-        vertices1.push(cubePoints[indices[i]][j]);
+        verticesKubus.push(cubePoints[indices[i]][j]);
       }
       for (var j=0; j < 3; j++) {
-        vertices1.push(cubeColors[a][j]);
+        verticesKubus.push(cubeColors[a][j]);
       }
     }
   }
-  quad(1, 0, 3, 2);
-  quad(2, 3, 7, 6);
-  quad(3, 0, 4, 7);
-  quad(7, 4, 5, 6);
-  quad(4, 0, 1, 5);
-  quad(5, 1, 2, 6);
+
+  quadKubus(1, 0, 3, 2); // Depan
+  quadKubus(2, 3, 7, 6); // Kanan
+  quadKubus(6, 5, 1, 2); // Atas
+  quadKubus(5, 4, 0, 1); // Kiri
+  quadKubus(4, 5, 6, 7); // Belakang
+  quadKubus(4, 7, 3, 0); // Bawah
 
   var vertices2 = new Float32Array([
     //x,y,z           //r,g,b
@@ -58,8 +60,8 @@
     -0.1, 0.0, 0.0,   1.0, 1.0, 0.0,
     -0.1, 0.1, 0.0,   1.0, 1.0, 0.0,
     -0.2, 0.1, 0.0,   1.0, 1.0, 1.0,
-    -0.1, -0.4, 0.0,   1.0, 0.0, 1.0,
-    -0.2, -0.4, 0.0,   1.0, 1.0, 0.0
+    -0.1, -0.3, 0.0,   1.0, 0.0, 1.0,
+    -0.2, -0.3, 0.0,   1.0, 1.0, 0.0
   ]);
 
   glUtils.SL.init({ callback: function() { main(); }});
@@ -96,6 +98,23 @@
     }
   }
 
+  function animasiTranslasi(){
+    if (x_huruf >= (1.0-Math.abs(0.06*scaleX))) x_arah = -1.0;
+    else if (x_huruf <= (-1.0+Math.abs(0.06*scaleX))) x_arah = 1.0;
+    x_huruf += 0.002 * x_arah;
+    gl.uniform1f(xHurufLocation, x_huruf);
+    
+    if (y_huruf > (1.0-0.09)) y_arah = -1.0;
+    else if (y_huruf < (-1.0+0.09)) y_arah = 1.0;
+    y_huruf += 0.005 * y_arah;
+    gl.uniform1f(yHurufLocation, y_huruf);
+    
+    if (z_huruf >= 1.0) z_arah = -1.0;
+    else if (z_huruf <= -1.0) z_arah = 1.0;
+    z_huruf += 0.006 * z_arah;
+    gl.uniform1f(zHurufLocation, z_huruf);
+  }
+
   function render(){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   
@@ -112,7 +131,7 @@
     );
     gl.uniformMatrix4fv(vmLoc, false, vm);
     
-    var n1 = initBuffersKubus(gl, vertices1);
+    var n1 = initBuffersKubus(gl, verticesKubus);
     flag = 0;
     gl.uniform1i(flagUniformLocation, flag);
     gl.drawArrays(gl.LINE_STRIP, 0, n1);
@@ -122,6 +141,9 @@
     else if (scaleX <= -1.0) melebar = 1.0;
     scaleX += 0.0056 * melebar;
     gl.uniform1f(scaleXUniformLocation, scaleX);
+
+    //animasi translasi
+    animasiTranslasi();
 
     var n2 = initBuffers(gl,vertices2);
     
@@ -167,6 +189,19 @@
       10.0, // far  
     );
     gl.uniformMatrix4fv(pmLoc, false, pm);
+
+
+    xHurufLocation = gl.getUniformLocation(program, 'x_huruf');
+    x_huruf = 0.0;
+    gl.uniform1f(xHurufLocation, x_huruf);
+
+    yHurufLocation = gl.getUniformLocation(program, 'y_huruf');
+    y_huruf = 0.0;
+    gl.uniform1f(yHurufLocation, y_huruf);
+
+    zHurufLocation = gl.getUniformLocation(program, 'z_huruf');
+    z_huruf = 0.0;
+    gl.uniform1f(zHurufLocation, z_huruf);
     
     scaleXUniformLocation = gl.getUniformLocation(program, 'scaleX');
     scaleX = 1.0;
@@ -181,6 +216,9 @@
     gl.uniform1i(flagUniformLocation, flag);
 
     melebar = 1.0;
+    x_arah = 1.0;
+    y_arah = 1.0;
+    z_arah = 1.0;
 
     gl.clearColor(50/255, 50/255, 0/255, 1.0);
     gl.enable(gl.DEPTH_TEST);
